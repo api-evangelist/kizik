@@ -1,0 +1,28 @@
+generated: '2026-08-23'
+method: probed
+source: https://kizik.com/.well-known/openid-configuration
+docs: https://kizik.com/.well-known/openid-configuration
+issuer: https://shopify.com/authentication/22811461
+flows:
+- type: authorization_code
+  pkce: S256
+  authorization_url: https://shopify.com/authentication/22811461/oauth/authorize
+  token_url: https://shopify.com/authentication/22811461/oauth/token
+scope_count: 4
+scopes:
+- name: openid
+  description: Standard OpenID Connect scope. Requests an ID token identifying the Kizik customer.
+- name: email
+  description: Releases the customer's email address and email_verified claim.
+- name: customer-account-api:full
+  description: >-
+    Full access to the Shopify Customer Account API for this shop on behalf of the signed-in Kizik
+    customer — orders, addresses, and profile.
+- name: customer-account-mcp-api:full
+  description: >-
+    Full access to the Customer Account MCP API for this shop. This is the authenticated, customer-scoped
+    counterpart to the anonymous UCP commerce MCP endpoint at /api/ucp/mcp.
+notes:
+- Scope names are read verbatim from the scopes_supported array of the served discovery document; none
+  were inferred.
+- The anonymous UCP/MCP commerce endpoint at https://kizik.com/api/ucp/mcp uses no OAuth scopes at all.

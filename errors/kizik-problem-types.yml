@@ -1,0 +1,61 @@
+generated: '2026-08-23'
+method: probed
+source: https://kizik.com/api/ucp/mcp (live error responses observed 2026-08-23)
+format: json-rpc-2.0
+not_rfc9457: true
+envelope:
+  shape: |
+    {
+      "jsonrpc": "2.0",
+      "id": <request id>,
+      "error": {
+        "code": <JSON-RPC integer code>,
+        "message": <human-readable summary>,
+        "data": {
+          "code": <machine-readable slug>,
+          "content": <detail string>,
+          "continue_url": <URL a human can open to proceed>
+        }
+      }
+    }
+  fields:
+  - name: error.code
+    description: JSON-RPC integer error code. Server-defined codes use the -32000 range.
+  - name: error.message
+    description: Human-readable summary of the failure class.
+  - name: error.data.code
+    description: Machine-readable slug an agent should branch on. This is the actionable field.
+  - name: error.data.content
+    description: Detail string explaining what was missing or wrong.
+  - name: error.data.continue_url
+    description: >-
+      A URL a human can open to complete the action in a browser. This is the handoff path when an agent
+      cannot proceed on its own.
+problem_types:
+- code: -32001
+  slug: invalid_profile_url
+  message: UCP discovery failed
+  detail: 'Unable to fetch agent profile: Missing profile uri'
+  http_status: 200
+  cause: >-
+    The request omitted meta.ucp-agent.profile, or the supplied URI could not be fetched and parsed as a
+    UCP agent profile.
+  remediation: >-
+    Publish a UCP agent profile document at a resolvable HTTPS URL and pass it as
+    meta.ucp-agent.profile on every tools/call.
+  observed: true
+  evidence: >-
+    Observed twice on 2026-08-23 — once for an unknown method (bogus/method) and once for
+    tools/call search_catalog with empty arguments. The server validates agent identity before it
+    validates the method or the arguments, so this error masks method-not-found and
+    invalid-params until a valid profile is supplied.
+transport_notes:
+- JSON-RPC errors are returned with HTTP 200. An agent must inspect the response body, not the status
+  code, to detect failure on this endpoint.
+- Rate-limit exhaustion is documented as HTTP 429 in https://kizik.com/agents.md but was not observed
+  during probing and is therefore not asserted here with a body shape.
+coverage_note: >-
+  Kizik publishes no error reference page and no OpenAPI, so this catalog contains only error types that
+  were actually observed on the live endpoint. Downstream failure modes behind the agent-profile gate
+  (invalid variant ID, out-of-stock, payment declined, address unsupported) are not enumerated here
+  because they could not be reached anonymously and are not documented anywhere public.

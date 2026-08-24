@@ -1,0 +1,51 @@
+generated: '2026-08-23'
+method: probed
+source: https://kizik.com/.well-known/ucp + observed x-shopify-ucp-mcp-api-version header
+versioning:
+  style: dated-protocol-version
+  scheme: YYYY-MM-DD
+  current: '2026-04-08'
+  supported:
+  - version: '2026-04-08'
+    status: current
+    url: https://kizik-design.myshopify.com/.well-known/ucp/2026-04-08
+  - version: '2026-01-23'
+    status: supported
+    url: https://kizik-design.myshopify.com/.well-known/ucp/2026-01-23
+  negotiation: >-
+    A client discovers the versions Kizik serves from /.well-known/ucp, which returns a
+    supported_versions map of version to version-pinned discovery URL. The version actually applied is
+    echoed on every response as x-shopify-ucp-mcp-api-version.
+  response_header: x-shopify-ucp-mcp-api-version
+  discovery: https://kizik.com/.well-known/ucp
+  note: >-
+    Two concurrent protocol versions are served, which is a real overlap window rather than a hard cutover.
+capability_versioning:
+  detail: >-
+    Individual capabilities carry their own version and a requires.protocol.min floor. For example
+    dev.ucp.shopping.fulfillment and dev.ucp.shopping.discount both declare requires.protocol.min
+    2026-04-08, so they are unavailable to a client pinned to 2026-01-23.
+deprecation_policy:
+  published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  note: >-
+    No deprecation policy, sunset schedule, Sunset/Deprecation response headers or end-of-life notice is
+    published for either UCP version on any Kizik host. The dated version scheme implies rotation but
+    nothing states how long 2026-01-23 remains callable. No Deprecation pointer is emitted.
+status_page:
+  published: false
+  note: >-
+    Kizik operates no status page of its own. The underlying platform publishes status at
+    status.shopify.com, but that is Shopify's page reporting Shopify's availability, not a Kizik
+    commitment, so no StatusPage pointer is emitted on Kizik's behalf.
+sla:
+  published: false
+changelog:
+  published: false
+  note: >-
+    Kizik publishes no dated API changelog. Protocol changes arrive through the UCP version map, and the
+    upstream protocol changelog lives at https://ucp.dev, which Kizik does not author. No ChangeLog
+    pointer is emitted.
+deprecated_operations: []

@@ -1,0 +1,33 @@
+generated: '2026-08-23'
+method: generated
+source: mcp/kizik-mcp-tools-list.json (probed tools/list 2026-08-23) + https://kizik.com/agents.md + https://kizik.com/policies/refund-policy
+note: >-
+  Kizik publishes no OpenAPI, so these skills are grounded in tool names and input schemas read verbatim
+  from a live MCP tools/list response rather than from operationIds. Every operation named in the
+  frontmatter exists in mcp/kizik-mcp-tools-list.json. No provider-published skills or AGENTS.md were
+  found; Kizik's /agents.md is an instruction document, saved at llms/kizik-agents.md.
+skills:
+- name: kizik-catalog-search
+  file: kizik-catalog-search.md
+  description: Read-only catalog search and product lookup with correct minor-unit price handling.
+  operations: [search_catalog, lookup_catalog, get_product]
+  write_surface: false
+- name: kizik-guided-purchase
+  file: kizik-guided-purchase.md
+  description: >-
+    Cart and checkout construction up to a human approval gate, with the cancel and 30-day refund paths
+    stated explicitly.
+  operations:
+  - search_catalog
+  - create_cart
+  - update_cart
+  - get_cart
+  - cancel_cart
+  - create_checkout
+  - update_checkout
+  - get_checkout
+  - complete_checkout
+  - cancel_checkout
+  - get_order
+  write_surface: true
+  human_approval_required: true

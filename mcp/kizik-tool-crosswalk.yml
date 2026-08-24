@@ -1,0 +1,83 @@
+generated: '2026-08-23'
+method: derived
+source: mcp/kizik-mcp-tools-list.json + https://kizik.com/llms.txt
+description: >-
+  Binds each probed MCP tool to the read-only storefront HTTP surface Kizik documents for agents in
+  /llms.txt and /agents.md. NOTE ON SHAPE: Kizik publishes no OpenAPI, so the `rest:` column holds
+  documented HTTP paths rather than operationIds. Every row is grounded in a tool name read from a live
+  tools/list response and a path read from Kizik's own agent instructions; nothing here is inferred from
+  a spec that does not exist.
+surfaces:
+  mcp:
+    url: https://kizik.com/api/ucp/mcp
+    gated: false
+    note: tools/list is anonymous; tools/call requires a meta.ucp-agent.profile URI.
+  openapi:
+    present: false
+    note: No OpenAPI, Swagger, GraphQL, gRPC or WSDL contract is published on any Kizik host.
+  storefront_json:
+    base: https://kizik.com
+    gated: false
+    documented_at: https://kizik.com/llms.txt
+crosswalk:
+- tool: search_catalog
+  category: catalog
+  rest:
+  - GET /search?q={query}&type=product
+  - GET /collections/{handle}/products.json
+  binding: equivalent-read
+  confidence: medium
+  note: >-
+    Both return product results for a query or collection. The MCP tool applies buyer context
+    (address_country, currency) for pricing and availability; the storefront JSON does not.
+- tool: lookup_catalog
+  category: catalog
+  rest:
+  - GET /products/{handle}.json
+  binding: partial
+  confidence: medium
+  note: The tool looks up multiple products or variants by identifier; the JSON path resolves one handle.
+- tool: get_product
+  category: catalog
+  rest:
+  - GET /products/{handle}.json
+  binding: equivalent-read
+  confidence: high
+- tool: create_cart
+  category: cart
+  rest: []
+  binding: none
+  confidence: high
+  note: /cart.js is explicitly Disallowed in robots.txt; agents are directed to UCP/MCP instead.
+mcp_only:
+- tool: get_cart
+  reason: Cart read via AJAX (/cart.js) is Disallowed for agents in robots.txt.
+- tool: update_cart
+  reason: No public REST write surface for carts.
+- tool: cancel_cart
+  reason: No public REST write surface for carts.
+- tool: create_checkout
+  reason: /checkout and /checkouts/ are Disallowed in robots.txt; checkout exists only over UCP/MCP.
+- tool: get_checkout
+  reason: No public REST checkout surface.
+- tool: update_checkout
+  reason: No public REST checkout surface.
+- tool: complete_checkout
+  reason: No public REST checkout surface; additionally requires explicit human payment approval.
+- tool: cancel_checkout
+  reason: No public REST checkout surface.
+- tool: get_order
+  reason: /orders is Disallowed in robots.txt; order data requires customer-account OIDC auth or UCP/MCP.
+rest_only:
+- path: GET /products.json
+  reason: Whole-store product feed with no MCP equivalent; search_catalog requires a query.
+- path: GET /collections/all
+  reason: HTML collection browsing surface.
+- path: GET /sitemap.xml
+  reason: Crawl discovery, not a commerce operation.
+coverage:
+  mcp_tools: 13
+  mapped_to_http: 4
+  mcp_only: 9
+  rest_only: 3
+  openapi_operations: 0

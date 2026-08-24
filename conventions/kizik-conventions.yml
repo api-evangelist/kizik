@@ -1,0 +1,154 @@
+generated: '2026-08-23'
+method: derived
+source: mcp/kizik-mcp-tools-list.json (probed 2026-08-23) + https://kizik.com/agents.md + https://kizik.com/policies/refund-policy
+description: >-
+  Cross-cutting runtime semantics of Kizik's UCP/MCP agent commerce surface, derived from the live
+  tools/list response and Kizik's own published agent instructions and policies.
+auth:
+  style: none-at-discovery + caller-published-profile
+  detail: >-
+    tools/list is anonymous. Every tools/call requires meta.ucp-agent.profile, a URI resolving to the
+    calling agent's own UCP profile. Customer-scoped data uses OpenID Connect.
+  artifact: authentication/kizik-authentication.yml
+idempotency:
+  supported: true
+  scope: complete_checkout
+  mechanism: request-field
+  field: meta.idempotency-key
+  required: true
+  location: MCP tools/call arguments, under the meta object
+  evidence: >-
+    The probed inputSchema for complete_checkout declares meta.idempotency-key as a string and lists it
+    in meta.required alongside ucp-agent. It is the only tool of the thirteen that carries one, and it is
+    on precisely the operation that moves money.
+  retention: not published
+  note: >-
+    Kizik does not publish an idempotency-key retention window or a replay-conflict behaviour, so an
+    agent cannot tell how long a key is honoured. That is the gap worth closing on this surface.
+pagination:
+  style: cursor
+  applies_to: [search_catalog]
+  request_fields:
+    cursor: catalog.pagination.cursor
+    limit: catalog.pagination.limit
+  default_limit: 10
+  min_limit: 1
+  note: lookup_catalog and get_product are identifier-based and are not paginated.
+filtering:
+  applies_to: [search_catalog]
+  fields:
+  - catalog.filters.categories (OR logic)
+  - catalog.filters.price.min / catalog.filters.price.max (minor currency units)
+  - catalog.filters.available (boolean, default true)
+buyer_context:
+  description: >-
+    Provisional localization and pricing hints an agent should pass so quotes are accurate. Higher
+    resolution data (a real shipping address) supersedes these, and unsupported hints are ignored without
+    error.
+  fields:
+  - context.address_country (ISO 3166-1 alpha-2)
+  - context.address_region
+  - context.postal_code
+  - context.currency (ISO 4217)
+  - context.language (IETF BCP 47)
+  - context.intent
+  signals:
+  - dev.ucp.buyer_ip
+  - dev.ucp.user_agent
+money:
+  representation: integer minor units + currency code
+  example: '{"amount": 600, "currency": "USD"} is $6.00'
+  standard: ISO 4217
+  agent_note: >-
+    Convert to major units before quoting a price to a buyer. Divide by 100 for two-decimal currencies;
+    zero-decimal currencies such as JPY are already whole units. This instruction is repeated verbatim in
+    every catalog, cart, checkout and order tool description.
+identifiers:
+  format: Shopify global IDs
+  example: gid://shopify/Checkout/abc123
+  note: Checkout, cart, order and product variant IDs are all opaque gid:// URIs.
+error_envelope:
+  style: json-rpc-2.0
+  shape: '{"jsonrpc":"2.0","id":<n>,"error":{"code":<int>,"message":<string>,"data":{"code":<slug>,"content":<string>,"continue_url":<url>}}}'
+  artifact: errors/kizik-problem-types.yml
+  note: Not RFC 9457; there is no application/problem+json on this surface.
+request_tracing:
+  header: x-request-id
+  observed: 'acf96de0-070e-4106-a057-90ce1418351f-1787529444'
+  additional:
+  - server-timing (carries requestID, edge, country, processing duration)
+  - shopify-complexity-score / shopify-complexity-score-v2
+versioning:
+  style: dated protocol versions
+  current: '2026-04-08'
+  also_supported: ['2026-01-23']
+  response_header: x-shopify-ucp-mcp-api-version
+  discovery: https://kizik.com/.well-known/ucp
+  artifact: lifecycle/kizik-lifecycle.yml
+rate_limit_signaling:
+  documented: true
+  numeric_limits_published: false
+  statement: 'The MCP endpoint is rate-limited per IP. Back off on 429 responses.'
+  source: https://kizik.com/agents.md
+  cost_header: shopify-complexity-score
+  artifact: rate-limits/kizik-rate-limits.yml
+dry_run_mode:
+  supported: false
+  detail: >-
+    No test mode, sandbox store, simulation flag or test payment instrument is published. create_checkout
+    against the live store is the only way to price a basket, which is why the cancel path below matters.
+human_in_the_loop:
+  required_for: [complete_checkout]
+  statement: >-
+    Checkouts are for humans. Do NOT complete checkout, payment, or order placement automatically — no
+    scripted form fills, browser automation, or end-to-end agent flows that finalize payment without an
+    explicit, contemporaneous human approval step.
+  source: https://kizik.com/robots.txt
+reversibility:
+  grade: verified
+  summary: >-
+    Every write surface Kizik exposes to an agent has a published reversal path, and the money-moving one
+    has a stated window.
+  write_surfaces:
+  - operation: create_cart / update_cart
+    reversal: cancel_cart
+    operation_id: cancel_cart
+    window: unbounded while the cart is open
+    window_published: false
+    grade: documented
+    source: mcp/kizik-mcp-tools-list.json
+    note: A cart holds no money; cancel_cart is available at any point before checkout.
+  - operation: create_checkout / update_checkout
+    reversal: cancel_checkout
+    operation_id: cancel_checkout
+    window: any time before complete_checkout
+    window_published: true
+    grade: verified
+    source: mcp/kizik-mcp-tools-list.json
+    note: >-
+      cancel_checkout exists as a first-class tool. A checkout that has not been completed has taken no
+      payment, so cancelling is a full reversal.
+  - operation: complete_checkout
+    reversal: return / refund via Kizik's published refund policy
+    operation_id: null
+    window: 30 days
+    window_published: true
+    grade: verified
+    source: https://kizik.com/policies/refund-policy
+    stated: >-
+      "Our policy lasts 30 days. If 30 days have gone by since your purchase, unfortunately we can't
+      offer you a refund or exchange." Partial refunds only for items returned more than 30 days after
+      delivery or not in original condition.
+    note: >-
+      There is NO agent-callable refund or cancel-order tool. Once complete_checkout succeeds the order
+      is placed and reversal leaves the API entirely — it becomes a human returns process at
+      https://kizik.com/pages/returns-and-exchanges. An agent must treat complete_checkout as the point
+      of no return within the protocol, which is exactly why Kizik gates it behind human approval.
+  no_reversal_for: []
+cross_references:
+  authentication: authentication/kizik-authentication.yml
+  scopes: scopes/kizik-scopes.yml
+  errors: errors/kizik-problem-types.yml
+  lifecycle: lifecycle/kizik-lifecycle.yml
+  rate_limits: rate-limits/kizik-rate-limits.yml
+  mcp: mcp/kizik-mcp.yml

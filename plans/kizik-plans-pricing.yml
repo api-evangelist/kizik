@@ -1,0 +1,21 @@
+generated: '2026-08-23'
+method: searched
+source: https://kizik.com/agents.md + https://kizik.com/.well-known/ucp
+plan_count: 0
+note: >-
+  Kizik publishes no API plans, tiers, quotas or developer pricing of any kind. It is a
+  direct-to-consumer footwear retailer, and its agent surface is a sales channel rather than a metered
+  product: the UCP/MCP endpoint is free and anonymous to call, and Kizik monetises the shoes an agent
+  buys, not the API calls it makes. The only prices Kizik publishes are retail product prices, returned
+  per-variant through search_catalog / get_product in ISO 4217 minor units. Recording plan_count 0 is the
+  correct measurement here, not a gap in the provider's documentation.
+pricing_model: transactional-commerce
+api_access_cost: free
+plans: []
+evidence:
+- url: https://kizik.com/agents.md
+  status: 200
+  note: Documents the agent surface end to end with no mention of API pricing, keys, quotas or tiers.
+- url: https://kizik.com/.well-known/ucp
+  status: 200
+  note: Declares capabilities and payment handlers; no billing or entitlement block.

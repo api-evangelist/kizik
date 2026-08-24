@@ -1,0 +1,50 @@
+generated: '2026-08-23'
+method: probed
+source: https://kizik.com/agents.md + observed response headers on https://kizik.com/api/ucp/mcp
+docs: https://kizik.com/agents.md
+limit_count: 0
+limit_count_note: >-
+  Kizik documents that the MCP endpoint is rate limited and tells agents how to react, but publishes no
+  numeric limit, window or burst anywhere public. An honest zero: the policy exists, the numbers do not.
+policy:
+  statement: 'Respect rate limits. The MCP endpoint is rate-limited per IP. Back off on 429 responses.'
+  source: https://kizik.com/agents.md
+  scope: per-ip
+  window: not published
+  limit: not published
+  burst: not published
+  status_on_exhaustion: 429
+limits: []
+response_headers:
+- name: shopify-complexity-score
+  observed_value: '46'
+  description: >-
+    Per-request cost score returned on the MCP endpoint. This is a query-cost signal rather than a
+    remaining-quota signal — it tells an agent how expensive its call was, not how many it has left.
+  observed: true
+- name: shopify-complexity-score-v2
+  observed_value: '46'
+  observed: true
+- name: x-request-id
+  description: Per-request identifier, useful when reporting a throttling problem.
+  observed: true
+- name: server-timing
+  description: Carries processing duration, db time, edge and requestID.
+  observed: true
+absent_headers:
+- X-RateLimit-Limit
+- X-RateLimit-Remaining
+- X-RateLimit-Reset
+- RateLimit-Limit
+- RateLimit-Remaining
+- RateLimit-Reset
+- Retry-After
+gap_note: >-
+  No standard rate-limit header family is returned on a successful request, so an agent has no runtime
+  signal of how close it is to the limit and can only discover it by being throttled. Adding
+  RateLimit-Limit / RateLimit-Remaining / RateLimit-Reset (RFC 9238 draft family) or a Retry-After on the
+  429 would make this surface self-describing.
+x-evidence:
+  fetched: '2026-08-23'
+  url: https://kizik.com/api/ucp/mcp
+  http_status: 200

@@ -1,0 +1,45 @@
+generated: '2026-08-23'
+method: probed
+source: https://kizik.com/.well-known/
+hit_count: 3
+hosts:
+- host: https://kizik.com
+  documents:
+  - path: /.well-known/ucp
+    status: 200
+    file: kizik-ucp.json
+    note: >-
+      UCP merchant profile. Names merchant Kizik, origin kizik.com, shop_id 22811461. Declares UCP
+      2026-04-08 and 2026-01-23, the shopping service over MCP, seven dev.ucp.shopping.* capabilities
+      plus dev.shopify.catalog, and three payment handlers.
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: kizik-openid-configuration.json
+    note: OIDC discovery for Shopify customer accounts, issuer https://shopify.com/authentication/22811461.
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: kizik-oauth-authorization-server.json
+    note: RFC 8414 metadata; byte-identical to the OIDC discovery document.
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://kizik-design.myshopify.com
+  documents:
+  - path: /.well-known/ucp
+    status: 200
+    file: kizik-ucp.json
+    note: Same document as the kizik.com host; the Shopify tenant origin for the same merchant profile.
+  - path: /.well-known/agent-card.json
+    status: 404
+notes:
+- The 404 responses return a real Shopify 404 body (4264 bytes, "404 Not Found"), not a soft-200
+  catch-all, so the negatives above are genuine absences.
+- No security.txt is served, so no SecurityTxt pointer is emitted.
+- No A2A agent card was found on any host, so no a2a/ artifact and no AgentCard pointer exist.

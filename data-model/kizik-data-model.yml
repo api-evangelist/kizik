@@ -1,0 +1,98 @@
+generated: '2026-08-23'
+method: derived
+source: mcp/kizik-mcp-tools-list.json (probed tools/list, 2026-08-23)
+description: >-
+  Entity graph of Kizik's UCP commerce surface, derived from the JSON Schema inputSchemas of the thirteen
+  live MCP tools. Only entities and fields that appear in the probed schemas are recorded.
+identifier_scheme:
+  format: Shopify global ID URI
+  pattern: 'gid://shopify/<Type>/<id>'
+  example: 'gid://shopify/Checkout/abc123'
+entities:
+- name: Product
+  description: A Kizik shoe listing.
+  accessed_by: [search_catalog, lookup_catalog, get_product]
+  identifier: gid://shopify/Product/<id>
+- name: ProductVariant
+  description: A purchasable size/colour of a product. The unit a line item references.
+  accessed_by: [lookup_catalog, get_product]
+  identifier: gid://shopify/ProductVariant/<id>
+- name: Cart
+  description: A mutable basket of line items with optional buyer and localization context.
+  accessed_by: [create_cart, get_cart, update_cart, cancel_cart]
+  fields: [line_items, buyer, context]
+- name: LineItem
+  description: A quantity of one product variant within a cart or checkout.
+  fields: [id, quantity, item.id]
+  required: [item, quantity]
+- name: Checkout
+  description: >-
+    A priced, addressable order-in-progress carrying line items, totals, discounts, taxes, payment
+    instruments and fulfillment selection.
+  accessed_by: [create_checkout, get_checkout, update_checkout, complete_checkout, cancel_checkout]
+  identifier: gid://shopify/Checkout/<id>
+  fields: [payment, line_items, buyer, fulfillment]
+- name: PaymentInstrument
+  description: A card, wallet token or other instrument attached to a checkout.
+  required: [id, handler_id, type]
+  fields: [id, handler_id, type, billing_address]
+- name: PaymentHandler
+  description: >-
+    A declared payment provider configuration. Kizik declares three: com.google.pay (gpay),
+    dev.shopify.card (shopify.card) and dev.shopify.shop_pay (shop_pay).
+  source: well-known/kizik-ucp.json
+- name: Address
+  description: Postal address used for billing and shipping.
+  fields: [street_address, extended_address, address_locality, address_region, postal_code, address_country]
+- name: Buyer
+  description: Contact identity attached to a cart or checkout.
+  fields: [email, phone_number]
+- name: Order
+  description: The immutable record produced by a completed checkout.
+  accessed_by: [get_order]
+  identifier: gid://shopify/Order/<id>
+- name: Money
+  description: An amount in ISO 4217 minor units paired with a currency code.
+  fields: [amount, currency]
+relationships:
+- from: Cart
+  to: LineItem
+  type: has_many
+  via: cart.line_items
+- from: LineItem
+  to: ProductVariant
+  type: belongs_to
+  via: line_items[].item.id
+- from: Cart
+  to: Buyer
+  type: has_one
+  via: cart.buyer
+- from: Checkout
+  to: LineItem
+  type: has_many
+  via: checkout.line_items
+- from: Checkout
+  to: PaymentInstrument
+  type: has_many
+  via: checkout.payment.instruments
+- from: PaymentInstrument
+  to: PaymentHandler
+  type: belongs_to
+  via: instruments[].handler_id
+- from: PaymentInstrument
+  to: Address
+  type: has_one
+  via: instruments[].billing_address
+- from: Checkout
+  to: Order
+  type: has_one
+  via: complete_checkout result
+- from: Product
+  to: ProductVariant
+  type: has_many
+  via: product variants
+- from: Cart
+  to: Checkout
+  type: has_one
+  via: create_checkout from cart line items
+lifecycle_path: Product -> ProductVariant -> LineItem -> Cart -> Checkout -> Order

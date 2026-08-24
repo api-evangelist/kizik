@@ -1,23 +1,120 @@
 aid: kizik
 name: Kizik
-description: 'Kizik is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: 'Kizik is the hands-free footwear company founded in Alpine, Utah, built on the patented
+  Cage and Inner Cage step-in technology that lets a wearer put on a shoe without bending down, tying,
+  or using their hands. Kizik sells direct-to-consumer at kizik.com across men''s, women''s and kids''
+  lines, and licenses its hands-free technology to other footwear brands. Kizik has no traditional
+  developer program, but it operates a real, publicly reachable agent commerce surface: its Shopify
+  storefront serves an agent instruction document at /agents.md and /llms.txt, a Universal Commerce
+  Protocol (UCP) merchant profile at /.well-known/ucp, and an unauthenticated MCP endpoint at
+  /api/ucp/mcp exposing thirteen catalog, cart, checkout and order tools with full JSON Schema inputs.
+  Customer identity is OpenID Connect, discoverable at /.well-known/openid-configuration.'
 url: https://raw.githubusercontent.com/api-evangelist/kizik/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-23'
 modified: '2026-08-23'
+image: https://kizik.com/cdn/shop/files/social-image-athens-2-soft-chambray.jpg?v=1738684971&width=2048
 tags:
 - Company
-apis: []
+- Retail
+- E-Commerce
+- Footwear
+- Consumer Goods
+- Agent Commerce
+- Universal Commerce Protocol
+- MCP
+- Shopify
+- Direct to Consumer
+apis:
+- name: Kizik Agent Commerce API (UCP / MCP)
+  description: 'Kizik''s Universal Commerce Protocol surface, exposed over MCP at
+    https://kizik.com/api/ucp/mcp. An unauthenticated tools/list returns thirteen tools covering catalog
+    search and lookup, cart create/update/cancel, checkout create/update/complete/cancel, and order
+    retrieval, each with a full JSON Schema 2020-12 inputSchema. Payment completion requires
+    contemporaneous human approval; agents must not finalize checkout autonomously.'
+  humanURL: https://kizik.com/agents.md
+  baseURL: https://kizik.com/api/ucp/mcp
+  tags:
+  - Agent Commerce
+  - MCP
+  - Universal Commerce Protocol
+  - Checkout
+  - Catalog
+  properties:
+  - type: MCPServer
+    url: mcp/kizik-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/kizik-tool-crosswalk.yml
+  - type: Documentation
+    url: https://kizik.com/agents.md
+  - type: Authentication
+    url: authentication/kizik-authentication.yml
+  - type: OAuthScopes
+    url: scopes/kizik-scopes.yml
+  - type: ErrorCatalog
+    url: errors/kizik-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/kizik-rate-limits.yml
+- name: Kizik Storefront Product Data
+  description: 'The read-only JSON product surface of the Kizik Shopify storefront, documented for agents
+    in https://kizik.com/llms.txt: /products.json, /collections/{handle}/products.json,
+    /products/{handle}.json and /search?q={query}&type=product. No authentication is required and the
+    documents are served directly from kizik.com.'
+  humanURL: https://kizik.com/llms.txt
+  baseURL: https://kizik.com
+  tags:
+  - Products
+  - Catalog
+  - E-Commerce
+  properties:
+  - type: Documentation
+    url: https://kizik.com/llms.txt
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/kizik-domain-security.yml
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://kizik.com/
+- type: Documentation
+  url: https://kizik.com/agents.md
+- type: LLMsTxt
+  url: llms/kizik-llms.txt
+- type: WellKnown
+  url: well-known/kizik-well-known.yml
+- type: Conventions
+  url: conventions/kizik-conventions.yml
+- type: Idempotency
+  url: conventions/kizik-conventions.yml
+- type: Conformance
+  url: conformance/kizik-conformance.yml
+- type: Lifecycle
+  url: lifecycle/kizik-lifecycle.yml
+- type: DataModel
+  url: data-model/kizik-data-model.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Plans
+  url: plans/kizik-plans-pricing.yml
+- type: Blog
+  url: https://kizik.com/blogs/news
+- type: Support
+  url: https://kizik.com/pages/contact
+- type: HelpCenter
+  url: https://kizik.com/pages/faqs
+- type: SignUp
+  url: https://kizik.com/account/login
+- type: TermsOfService
+  url: https://kizik.com/policies/terms-of-service
+- type: PrivacyPolicy
+  url: https://kizik.com/policies/privacy-policy
+x-enrichment:
+  date: '2026-08-23'
+  status: enriched
+  artifacts_added: 20
+  pass: local-v1

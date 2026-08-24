@@ -1,0 +1,99 @@
+generated: '2026-08-23'
+method: probed
+source: https://kizik.com/.well-known/ucp + https://kizik.com/.well-known/openid-configuration + https://kizik.com/api/ucp/mcp
+standards:
+- id: ucp
+  name: Universal Commerce Protocol
+  conforms: true
+  version: '2026-04-08'
+  evidence: >-
+    /.well-known/ucp returns HTTP 200 with a ucp.version of 2026-04-08, supported_versions for
+    2026-04-08 and 2026-01-23, a dev.ucp.shopping service over the mcp transport, and seven declared
+    dev.ucp.shopping.* capabilities (checkout, cart, fulfillment, discount, order, catalog.search,
+    catalog.lookup).
+  spec: https://ucp.dev/2026-04-08/specification/overview/
+- id: mcp
+  name: Model Context Protocol
+  conforms: true
+  evidence: >-
+    POST https://kizik.com/api/ucp/mcp with method tools/list returned a JSON-RPC 2.0 result containing
+    13 tools, each with a JSON Schema 2020-12 inputSchema. Response carried
+    x-shopify-ucp-mcp-api-version: 2026-04-08.
+- id: jsonrpc-2.0
+  name: JSON-RPC 2.0
+  conforms: true
+  evidence: All MCP requests and responses carry "jsonrpc":"2.0"; errors use the JSON-RPC error object.
+- id: json-schema-2020-12
+  name: JSON Schema 2020-12
+  conforms: true
+  evidence: >-
+    Every tool inputSchema declares
+    "$schema":"https://json-schema.org/draft/2020-12/schema".
+- id: oidc
+  name: OpenID Connect Discovery 1.0
+  conforms: true
+  evidence: >-
+    /.well-known/openid-configuration returns HTTP 200 with issuer, authorization_endpoint,
+    token_endpoint, jwks_uri, response_types_supported and id_token_signing_alg_values_supported.
+- id: oauth2
+  name: OAuth 2.0
+  conforms: true
+  evidence: authorization_code + refresh_token + jwt-bearer grant types declared in discovery.
+- id: rfc8414
+  name: OAuth 2.0 Authorization Server Metadata (RFC 8414)
+  conforms: true
+  evidence: /.well-known/oauth-authorization-server returns HTTP 200 with authorization server metadata.
+- id: rfc7636
+  name: PKCE (RFC 7636)
+  conforms: true
+  evidence: code_challenge_methods_supported includes S256.
+- id: rfc8615
+  name: Well-Known URIs (RFC 8615)
+  conforms: true
+  evidence: Three documents served under /.well-known/ on kizik.com.
+- id: iso4217
+  name: ISO 4217 currency minor units
+  conforms: true
+  evidence: >-
+    Every MCP price field is documented as an integer in ISO 4217 minor units paired with a currency
+    code, e.g. {"amount": 600, "currency": "USD"}.
+- id: llms-txt
+  name: llms.txt
+  conforms: true
+  evidence: https://kizik.com/llms.txt returns HTTP 200 with a real agent instruction document.
+- id: rfc9116
+  name: security.txt (RFC 9116)
+  conforms: false
+  evidence: /.well-known/security.txt returned HTTP 404.
+- id: rfc9457
+  name: Problem Details for HTTP APIs (RFC 9457)
+  conforms: false
+  evidence: >-
+    Errors use the JSON-RPC error envelope, not application/problem+json. No HTTP API on this host
+    returns a problem+json media type.
+- id: a2a
+  name: A2A Agent Card
+  conforms: false
+  evidence: /.well-known/agent-card.json and /.well-known/agent.json both returned HTTP 404 on kizik.com and kizik-design.myshopify.com.
+- id: openapi
+  name: OpenAPI
+  conforms: false
+  evidence: No OpenAPI, Swagger, GraphQL SDL, gRPC/Protobuf or WSDL contract found on any Kizik host.
+domain_standard:
+  id: ucp
+  name: Universal Commerce Protocol (dev.ucp.shopping.*)
+  market: retail / e-commerce / agentic commerce
+  declared_in_contract: true
+  evidence: >-
+    The contract declares the domain standard about itself rather than in marketing prose: the
+    /.well-known/ucp merchant profile enumerates dev.ucp.shopping.checkout, dev.ucp.shopping.cart,
+    dev.ucp.shopping.fulfillment, dev.ucp.shopping.discount, dev.ucp.shopping.order,
+    dev.ucp.shopping.catalog.search and dev.ucp.shopping.catalog.lookup, each bound to a versioned
+    ucp.dev schema URL, plus the dev.shopify.catalog extension. An agent that already speaks UCP can
+    transact with Kizik with no bespoke connector.
+  spec: https://ucp.dev
+certifications: []
+compliance_note: >-
+  Kizik publishes no trust center, no SOC 2 / ISO 27001 / PCI attestation page and no named
+  certifications on any public page probed, so no Compliance pointer is emitted. Card data is handled by
+  Shopify Payments and the declared payment handlers, not by Kizik directly.

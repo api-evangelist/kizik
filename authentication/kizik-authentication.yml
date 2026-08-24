@@ -1,0 +1,66 @@
+generated: '2026-08-23'
+method: probed
+source: https://kizik.com/.well-known/openid-configuration + probed https://kizik.com/api/ucp/mcp
+docs: https://kizik.com/agents.md
+description: >-
+  Kizik exposes two distinct authentication postures: the agent commerce surface is anonymous at
+  discovery time, and customer identity is OpenID Connect.
+schemes:
+- id: none
+  type: none
+  surface: https://kizik.com/api/ucp/mcp
+  description: >-
+    MCP tools/list is served anonymously. Probed 2026-08-23: HTTP 200, no WWW-Authenticate header, no
+    OAuth challenge, no API key required to enumerate the 13 tools and their input schemas.
+  evidence:
+    url: https://kizik.com/api/ucp/mcp
+    http_status: 200
+- id: ucp-agent-profile
+  type: caller-identity
+  surface: https://kizik.com/api/ucp/mcp
+  description: >-
+    Every tool invocation requires meta.ucp-agent.profile — a URI pointing at the calling agent's own
+    published UCP agent profile. This is caller identification rather than authorization: the agent
+    asserts who it is by publishing a resolvable profile document. Omitting it returns JSON-RPC error
+    -32001 with data.code invalid_profile_url.
+  required: true
+  evidence:
+    probe: 'tools/call search_catalog with empty arguments'
+    response: '{"code":-32001,"message":"UCP discovery failed","data":{"code":"invalid_profile_url"}}'
+- id: openid-connect
+  type: openIdConnect
+  surface: customer accounts
+  description: >-
+    Shopify customer accounts for the Kizik store, discoverable at /.well-known/openid-configuration on
+    kizik.com. Authorization code flow with PKCE (S256), refresh tokens, and a JWT bearer grant.
+  issuer: https://shopify.com/authentication/22811461
+  openid_configuration: https://kizik.com/.well-known/openid-configuration
+  authorization_endpoint: https://shopify.com/authentication/22811461/oauth/authorize
+  token_endpoint: https://shopify.com/authentication/22811461/oauth/token
+  end_session_endpoint: https://shopify.com/authentication/22811461/logout
+  jwks_uri: https://shopify.com/authentication/22811461/.well-known/jwks.json
+  grant_types:
+  - authorization_code
+  - refresh_token
+  - urn:ietf:params:oauth:grant-type:jwt-bearer
+  response_types: [code]
+  code_challenge_methods: [S256]
+  token_endpoint_auth_methods:
+  - client_secret_basic
+  - client_secret_post
+  id_token_signing_alg: [RS256]
+  claims: [iss, sub, aud, exp, iat, nonce, sid, email, email_verified]
+  scopes_artifact: scopes/kizik-scopes.yml
+- id: read-only-storefront
+  type: none
+  surface: https://kizik.com/products.json
+  description: Product JSON documents are served without credentials.
+payment_authorization:
+  human_in_the_loop: required
+  note: >-
+    Payment completion is not an authentication scheme Kizik grants to agents at all. Both robots.txt and
+    /agents.md require an explicit, contemporaneous human approval step before any checkout completes.
+notes:
+- No API keys, no bearer tokens and no mutual TLS are used on the public agent surface.
+- The OIDC issuer is a Shopify-operated host, but the discovery document is served from kizik.com and is
+  scoped to Kizik's shop (22811461); it authenticates Kizik customers, not Shopify staff.
