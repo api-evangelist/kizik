@@ -76,6 +76,10 @@ apis:
   humanURL: https://kizik.com/llms.txt
   baseURL: https://kizik.com
   tags:
+  - Product
+  - Catalog
+  - E-Commerce
+  tags_raw:
   - Products
   - Catalog
   - E-Commerce
