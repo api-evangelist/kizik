@@ -48,6 +48,17 @@ tags:
 - E-Commerce
 - Footwear
 - Consumer Goods
+- Agentic Commerce
+- Universal Commerce Protocol
+- MCP
+- Shopify
+- Direct to Consumer
+tags_raw:
+- Company
+- Retail
+- E-Commerce
+- Footwear
+- Consumer Goods
 - Agent Commerce
 - Universal Commerce Protocol
 - MCP
@@ -63,6 +74,12 @@ apis:
   humanURL: https://kizik.com/agents.md
   baseURL: https://kizik.com/api/ucp/mcp
   tags:
+  - Agentic Commerce
+  - MCP
+  - Universal Commerce Protocol
+  - Checkout
+  - Catalog
+  tags_raw:
   - Agent Commerce
   - MCP
   - Universal Commerce Protocol
