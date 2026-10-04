@@ -100,13 +100,15 @@ apis:
     url: errors/kizik-problem-types.yml
   - type: RateLimits
     url: rate-limits/kizik-rate-limits.yml
+  x-surface: platform-generated
+  x-platform: shopify
+  x-platform-surface: ucp
 - name: Kizik Storefront Product Data
   description: 'The read-only JSON product surface of the Kizik Shopify storefront, documented for agents
     in https://kizik.com/llms.txt: /products.json, /collections/{handle}/products.json,
     /products/{handle}.json and /search?q={query}&type=product. No authentication is required and the
     documents are served directly from kizik.com.'
   humanURL: https://kizik.com/llms.txt
-  baseURL: https://kizik.com
   tags:
   - Product
   - Catalog
@@ -118,6 +120,9 @@ apis:
   properties:
   - type: Documentation
     url: https://kizik.com/llms.txt
+  x-surface: platform-generated
+  x-platform: shopify
+  x-platform-surface: storefront-json
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
