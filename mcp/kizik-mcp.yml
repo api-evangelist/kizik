@@ -2,18 +2,16 @@ generated: '2026-08-23'
 method: probed
 source: https://kizik.com/api/ucp/mcp
 name: Kizik UCP Commerce MCP Server
-description: >-
-  Kizik's Universal Commerce Protocol (UCP) shopping service, exposed over MCP on Kizik's own domain.
-  An unauthenticated JSON-RPC tools/list returns 13 tools with full JSON Schema 2020-12 inputSchemas
+description: Kizik's Universal Commerce Protocol (UCP) shopping service, exposed over MCP on Kizik's own
+  domain. An unauthenticated JSON-RPC tools/list returns 13 tools with full JSON Schema 2020-12 inputSchemas
   covering catalog search/lookup, cart lifecycle, checkout lifecycle, and order retrieval.
 status: live
 ownership:
-  note: >-
-    The protocol implementation is Shopify platform infrastructure, but this is Kizik's own per-merchant
-    instance and it says so about itself: the UCP discovery document names merchant_name "Kizik",
-    merchant_origin "kizik.com", Shopify shop_id 22811461 and tenant kizik-design.myshopify.com, and the
-    endpoint is served from kizik.com. Kizik's own robots.txt and /agents.md direct agents to it. The
-    tools transact Kizik's catalog and Kizik's checkout, so the surface belongs to Kizik.
+  note: 'The protocol implementation is Shopify platform infrastructure, but this is Kizik''s own per-merchant
+    instance and it says so about itself: the UCP discovery document names merchant_name "Kizik", merchant_origin
+    "kizik.com", Shopify shop_id 22811461 and tenant kizik-design.myshopify.com, and the endpoint is served
+    from kizik.com. Kizik''s own robots.txt and /agents.md direct agents to it. The tools transact Kizik''s
+    catalog and Kizik''s checkout, so the surface belongs to Kizik.'
   merchant_name: Kizik
   merchant_origin: kizik.com
   shop_id: '22811461'
@@ -23,10 +21,9 @@ deployment:
   endpoint: https://kizik.com/api/ucp/mcp
   auth: none
   verified: probed
-  note: >-
-    tools/list answered HTTP 200 anonymously on 2026-08-23 with no OAuth challenge. Individual tools/call
-    invocations additionally require a meta.ucp-agent.profile URI (an agent profile URL the caller
-    publishes); without it the server returns JSON-RPC error -32001 invalid_profile_url.
+  note: tools/list answered HTTP 200 anonymously on 2026-08-23 with no OAuth challenge. Individual tools/call
+    invocations additionally require a meta.ucp-agent.profile URI (an agent profile URL the caller publishes);
+    without it the server returns JSON-RPC error -32001 invalid_profile_url.
 transport: http-json-rpc
 protocol:
   ucp_version: '2026-04-08'
@@ -42,55 +39,85 @@ tools:
 - name: search_catalog
   category: catalog
   description: Search for products from the online store, hosted on Shopify.
-  required: [meta, catalog]
+  required:
+  - meta
+  - catalog
 - name: lookup_catalog
   category: catalog
   description: Look up multiple products or variants by identifier.
-  required: [meta, catalog]
+  required:
+  - meta
+  - catalog
 - name: get_product
   category: catalog
   description: Retrieve complete product detail by identifier. Returns a singular product.
-  required: [meta, catalog]
+  required:
+  - meta
+  - catalog
 - name: create_cart
   category: cart
   description: Creates a new cart.
-  required: [meta, cart]
+  required:
+  - meta
+  - cart
 - name: get_cart
   category: cart
   description: Get the cart contents.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 - name: update_cart
   category: cart
   description: Perform updates to a cart.
-  required: [meta, cart, id]
+  required:
+  - meta
+  - cart
+  - id
 - name: cancel_cart
   category: cart
   description: Cancels a cart.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 - name: create_checkout
   category: checkout
-  description: Creates a checkout. Returns checkout details, including line items, totals, discounts and taxes.
-  required: [meta, checkout]
+  description: Creates a checkout. Returns checkout details, including line items, totals, discounts and
+    taxes.
+  required:
+  - meta
+  - checkout
 - name: get_checkout
   category: checkout
   description: Returns details about the checkout, including line items, totals, discounts and taxes.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 - name: update_checkout
   category: checkout
   description: Updates a checkout. Returns checkout details.
-  required: [meta, checkout, id]
+  required:
+  - meta
+  - checkout
+  - id
 - name: complete_checkout
   category: checkout
   description: Completes a checkout. Returns order ID, Thank You Page URL, or errors. Requires buyer approval.
-  required: [meta, id, checkout]
+  required:
+  - meta
+  - id
+  - checkout
 - name: cancel_checkout
   category: checkout
   description: Cancels a checkout.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 - name: get_order
   category: order
   description: Get the details of an order.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 capabilities:
 - dev.ucp.shopping.catalog.search
 - dev.ucp.shopping.catalog.lookup
@@ -105,19 +132,27 @@ payment_handlers:
   handler: com.google.pay
   version: '2026-01-11'
   merchant_name: Kizik
-  networks: [VISA, MASTERCARD, AMEX, DISCOVER]
+  networks:
+  - VISA
+  - MASTERCARD
+  - AMEX
+  - DISCOVER
 - id: shopify.card
   handler: dev.shopify.card
   version: '2026-01-15'
-  networks: [visa, master, american_express, discover, diners_club]
+  networks:
+  - visa
+  - master
+  - american_express
+  - discover
+  - diners_club
 - id: shop_pay
   handler: dev.shopify.shop_pay
   version: '2026-04-08'
 human_approval_required: true
-human_approval_note: >-
-  Both robots.txt and /agents.md state that checkout, payment and order placement must not be completed
-  automatically. Agents must obtain explicit, contemporaneous buyer approval at the moment of payment, or
-  route the purchase through the Shopify Shop skill at https://shop.app/SKILL.md.
+human_approval_note: Both robots.txt and /agents.md state that checkout, payment and order placement must
+  not be completed automatically. Agents must obtain explicit, contemporaneous buyer approval at the moment
+  of payment, or route the purchase through the Shopify Shop skill at https://shop.app/SKILL.md.
 raw_tools_list: kizik-mcp-tools-list.json
 x-evidence:
   fetched: '2026-08-23'
@@ -129,3 +164,44 @@ x-evidence:
   response_headers:
     x-shopify-ucp-mcp-api-version: '2026-04-08'
     shopify-complexity-score: '46'
+tool_quality:
+  tool_count: 13
+  tokens_total: 49354
+  tokens_per_tool_median: 2906
+  heavy_tools:
+  - name: complete_checkout
+    tokens: 7009
+  - name: create_checkout
+    tokens: 5572
+  - name: update_checkout
+    tokens: 5528
+  - name: get_checkout
+    tokens: 5285
+  - name: update_cart
+    tokens: 3784
+  heavy_tool_count: 13
+  params_total: 29
+  params_undescribed: 0
+  params_described_pct: 100.0
+  tools_with_undescribed_params: 0
+  tools_annotated: 0
+  annotated_pct: 0.0
+  state_changing_unhinted:
+  - create_checkout
+  - update_checkout
+  - cancel_checkout
+  - create_cart
+  - update_cart
+  - cancel_cart
+  tools_missing_schema: 0
+  short_descriptions: 0
+  duplicate_descriptions: 0
+  duplicate_names: 0
+  nonportable_names: []
+  output_schema_count: 13
+  token_estimate: chars/3.6 of each compact tool definition
+  source: mcp/kizik-mcp-tools-list.json
+  measured: '2026-10-20'
+  scored: false
+  note: Facts from the saved tools/list capture (mcp_tool_quality.py); recorded, not scored. Checks learned
+    from Glimind's agent-readiness audit.
